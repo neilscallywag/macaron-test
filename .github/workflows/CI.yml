@@ -60,9 +60,28 @@ jobs:
           echo "Absolute path of the parent directory: $(realpath $(dirname $(pwd)))"
 
           # Macaron first checks if the provided path is a local path. We can use this to analyse the checked-out repo in the earlier step
-          FOLDER_PATH="."                                                 # We will analyse the local checkout repository. Do not use ${github.workspace} or ${GITHUB_WORKSPACE} as the script will be unable to parse the absolute path provided
-          BRANCH_NAME="${GITHUB_REF##*/}"                                 # Get the current branch (removes refs/heads/)
-          COMMIT_DIGEST="${GITHUB_SHA}"                                   # Get the current commit digest (SHA)
+                                                      
+          # We will analyse the local checkout repository
+          # The below options have not worked for various reasons, leading to failure in build with
+          # the script unable to either locate the repo or failing to recognise that the current repository is infact the git repo
+          
+          # This appends . at the end of the path without "/" - No git repo exists at /home/macaron/output/git_repos/local_repos.
+          # https://github.com/neilscallywag/macaron-test/actions/runs/14512943389/job/40715554179
+          # FOLDER_PATH="."  
+
+          # Both of the below lead to : No such file or directory: '/home/runner'
+          # https://github.com/neilscallywag/macaron-test/actions/runs/14512706476/job/40714812798
+          # FOLDER_PATH="${GITHUB_WORKSPACE}"
+          # FOLDER_PATH="${github.workspace}"
+
+          # Trying with actual repository link within the pipeline
+          FOLDER_PATH="https://github.com/neilscallywag/macaron-test"
+          
+          # Get the current branch (removes refs/heads/)
+          BRANCH_NAME="${GITHUB_REF##*/}"    
+          
+          # Get the current commit digest (SHA)
+          COMMIT_DIGEST="${GITHUB_SHA}"                                   
 
           echo "Analyzing repository: $FOLDER_PATH"
           echo "Branch: $BRANCH_NAME"
