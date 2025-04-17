@@ -73,10 +73,8 @@ jobs:
           ARTIFACT_ID=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)
           
           # Find all JAR and POM files
-          REPO_PATH="$HOME/.m2/local-repository/$GROUP_PATH/$ARTIFACT_ID/$VERSION"
-          echo "Searching for artifacts in: $REPO_PATH"
-          
-          ARTIFACTS=$(find $REPO_PATH -type f \( -name "*.jar" -not -name "*-javadoc.jar" -not -name "*-sources.jar" -o -name "*.pom" \))
+          echo "Searching for artifacts"
+          ARTIFACTS=$(find build/repo/${{ steps.publish.outputs.group }}/*/${{ steps.publish.outputs.version }}/* -type f \( \( -iname "*.jar" -not -iname "*-javadoc.jar" -not -iname "*-sources.jar" \) -or -iname "*.pom" \))
           
           if [ -z "$ARTIFACTS" ]; then
             echo "No artifacts found!"
