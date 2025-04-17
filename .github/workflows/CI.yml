@@ -49,10 +49,10 @@ jobs:
         run: ./run_macaron.sh --help
 
       # https://oracle.github.io/macaron/pages/using.html#analyzing-a-public-github-repository
-      - name: Analyse 
+      - name: Analyse the SLSA posture
         run: |
           # Macaron first checks if the provided path is a local path. We can use this to analyse the checked-out repo in the earlier step
-          FOLDER_PATH="python"                  # We will analyse the python folder
+          FOLDER_PATH="./python"                # We will analyse the local python folder
           BRANCH_NAME="${GITHUB_REF##*/}"       # Get the current branch (removes refs/heads/)
           COMMIT_DIGEST="${GITHUB_SHA}"         # Get the current commit digest (SHA)
 
