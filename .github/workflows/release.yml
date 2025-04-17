@@ -1,6 +1,5 @@
 name: Maven Release with SLSA Provenance
 
-# Trigger when a new release is created in the repository.
 on:
   release:
     types: [created]
@@ -8,89 +7,73 @@ on:
 jobs:
   release:
     outputs:
-      # Computed hashes for build artifacts
-      # Output the computed SHA256 hash of the artifacts and the release version
-      artifacts-sha256: ${{ steps.hash.outputs.artifacts-sha256 }} 
+      artifacts-sha256: ${{ steps.hash.outputs.artifacts-sha256 }}
       version: ${{ steps.extract_version.outputs.version }}
-    
+
     runs-on: ubuntu-latest
-    
-    # The job has permission to write to the repository contents and package registry
+
     permissions:
       contents: write
       packages: write
 
     steps:
-      # Checkout the repository at full depth (to get all tags, branches, and history)
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          
-      # Set up JDK version using the Temurin distribution for the Java environment          
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
-          
-      # Extract the version from the GitHub tag and outputs it
+
       - name: Extract release version
         id: extract_version
         run: |
-          # Remove v prefix if present in tag
           VERSION=${GITHUB_REF#refs/tags/}
           VERSION=${VERSION#v}
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Release version: $VERSION"
-          
-      # Update the Maven project version in the pom.xml to match the release version
+
       - name: Update version in pom.xml
         run: |
           mvn versions:set -DnewVersion=${{ steps.extract_version.outputs.version }} -DgenerateBackupPoms=false
 
-      # Build and deploy to local repository
       - name: Build and deploy locally to create artifacts for SLSA provenance
         id: deploy
         run: |
-          # Create a local Maven repository
           mkdir -p $HOME/.m2/local-repository
-          
-          # Build the project to create artifacts
           mvn clean package -Dmaven.test.skip=true
-          
-          # Extract group from pom.xml - convert dots to path separators
           GROUP_ID=$(mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout | sed 's/\./\//g')
           ARTIFACT_ID=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)
           echo "group=$GROUP_ID" >> $GITHUB_OUTPUT
           echo "artifact=$ARTIFACT_ID" >> $GITHUB_OUTPUT
 
-      # Find the artifacts (JAR and POM files) and calculates their SHA256 hash
+      - name: Debug artifact generation
+        run: |
+          echo "Checking for artifacts in target directory..."
+          ls -la target
+
       - name: Find artifacts in local repository
         id: find_artifacts
         run: |
           VERSION=${{ steps.extract_version.outputs.version }}
-          # Find all JAR and POM files in the target directory
-          echo "Searching for artifacts"
           ARTIFACTS=$(find target -type f \( \( -iname "*.jar" -not -iname "*-javadoc.jar" -not -iname "*-sources.jar" \) -or -iname "*.pom" \))
-          
           if [ -z "$ARTIFACTS" ]; then
             echo "No artifacts found!"
             exit 1
           fi
-          
           echo "Found artifacts:"
+          echo "$ARTIFACTS"
           ls -la $ARTIFACTS
-
-          # Compute hashes and store them
-          echo "artifacts-sha256=$(sha256sum $ARTIFACTS | base64 -w0)" >> $GITHUB_OUTPUT
-          sha256sum $ARTIFACTS | base64 -w0 > artifacts-sha256
+          echo "ARTIFACTS=$ARTIFACTS" >> $GITHUB_ENV
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: maven-build-outputs
-          path: target/*/${{ steps.extract_version.outputs.version }}/*
+          path: ${{ env.ARTIFACTS }}
           retention-days: 5
 
       - name: Upload artifacts hash
@@ -104,42 +87,33 @@ jobs:
         run: |
           echo "hello world"
 
-
   provenance-subject:
     needs: [release]
     runs-on: ubuntu-latest
-    outputs:
-      artifacts-sha256: ${{ steps.set-hash.outputs.artifacts-sha256 }}
+
     steps:
       - name: Download artifacts-sha256
         uses: actions/download-artifact@v4
         with:
           name: artifacts-sha256
 
-      # Workaround for GitHub Actions limitations with large output strings
       - name: Set artifacts-sha256 as output
         id: set-hash
         shell: bash
         run: echo "artifacts-sha256=$(cat artifacts-sha256)" >> "$GITHUB_OUTPUT"
-        # Set the artifacts-sha256 hash as output for the provenance step
 
-  # Use the SLSA generator to create a provenance document for the build
   provenance:
     needs: [release, provenance-subject]
     permissions:
-      # To read the workflow path
-      actions: read   
-      # To sign the provenance
+      actions: read
       id-token: write
-      # To add assets to a release
-      contents: write 
+      contents: write
     uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0
     with:
       base64-subjects: "${{ needs.provenance-subject.outputs.artifacts-sha256 }}"
-      upload-assets: true # Upload to the release
-      compile-generator: true # Build the generator from source
+      upload-assets: true
+      compile-generator: true
 
-  # Only runs if the current ref is a tag (indicating it's a release)
   github_release_artifacts:
     needs: [release, provenance]
     runs-on: ubuntu-latest
@@ -156,11 +130,8 @@ jobs:
         shell: bash
         run: |
           VERSION=${{ needs.release.outputs.version }}
-          
-          # Find all artifacts
           find maven-repository -type f \( -name "*.jar" -not -name "*-javadoc.jar" -not -name "*-sources.jar" -o -name "*.pom" \) | xargs zip -j maven-artifacts-${VERSION}.zip
-      
-      # Upload the ZIP file with the Maven artifacts to the GitHub release
+
       - name: Upload artifacts to release
         uses: softprops/action-gh-release@v2
         with:
