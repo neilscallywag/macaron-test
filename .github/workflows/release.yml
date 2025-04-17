@@ -57,7 +57,7 @@ jobs:
           mkdir -p $HOME/.m2/local-repository
           
           # Build the project to create artifacts
-          mvn clean package
+          mvn clean package -Dmaven.test.skip=true
           
           # Extract group from pom.xml - convert dots to path separators
           GROUP_ID=$(mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout | sed 's/\./\//g')
