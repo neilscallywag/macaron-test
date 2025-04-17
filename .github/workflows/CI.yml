@@ -2,17 +2,28 @@ name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - "main"
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - "main"
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install Macaron
+        run: |
+          # Download the Macaron installation script
+          # https://oracle.github.io/macaron/pages/installation.html
+          curl -O https://raw.githubusercontent.com/oracle/macaron/main/scripts/release_scripts/run_macaron.sh
+          chmod +x run_macaron.sh
+          # Sanity check
+          ./run_macaron.sh --help
+
       - name: Run a one-line script
         run: echo Hello, world!
-
-
