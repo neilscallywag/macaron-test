@@ -51,6 +51,14 @@ jobs:
       # https://oracle.github.io/macaron/pages/using.html#analyzing-a-public-github-repository
       - name: Analyse the SLSA posture
         run: |
+
+          # Sanity checks
+          echo "Current working directory: $(pwd)"
+          echo "Contents of the current directory:"
+          ls -la "$(pwd)"
+          echo "Parent directory: $(dirname $(pwd))"
+          echo "Absolute path of the parent directory: $(realpath $(dirname $(pwd)))"
+
           # Macaron first checks if the provided path is a local path. We can use this to analyse the checked-out repo in the earlier step
           FOLDER_PATH="${GITHUB_WORKSPACE}"                               # We will analyse the local checkout repository. Do not use ${github.workspace} as the output is different and it is a known open issue: https://github.com/actions/runner/issues/2058
           BRANCH_NAME="${GITHUB_REF##*/}"                                 # Get the current branch (removes refs/heads/)
