@@ -49,18 +49,26 @@ jobs:
         run: ./run_macaron.sh --help
 
       # https://oracle.github.io/macaron/pages/using.html#analyzing-a-public-github-repository
-      - name: Analyze 
+      - name: Analyse 
         run: |
-          REPO_PATH="${GITHUB_REPOSITORY}"      # Get the current repository (user/repo format)
+          # Macaron first checks if the provided path is a local path. We can use this to analyse the checked-out repo in the earlier step
+          FOLDER_PATH="python"                  # We will analyse the python folder
           BRANCH_NAME="${GITHUB_REF##*/}"       # Get the current branch (removes refs/heads/)
           COMMIT_DIGEST="${GITHUB_SHA}"         # Get the current commit digest (SHA)
 
-          echo "Analyzing repository: $REPO_PATH"
+          echo "Analyzing repository: $FOLDER_PATH"
           echo "Branch: $BRANCH_NAME"
           echo "Commit digest: $COMMIT_DIGEST"
 
           # Run the analysis command
           ./run_macaron.sh analyze -rp "$REPO_PATH" -b "$BRANCH_NAME" -d "$COMMIT_DIGEST"
+
+      # Sanity check
+      - name: List generated output files
+        run: |
+          echo "Listing the contents of the output directory:"
+          ls -R /home/macaron/output
+
 
         
 
