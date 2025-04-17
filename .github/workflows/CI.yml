@@ -9,6 +9,11 @@ on:
       - "main"
   workflow_dispatch:
 
+env:
+  # The version we want to pull https://oracle.github.io/macaron/pages/installation.html#download
+  # Main implies latest.
+  MACARON_TAG: "main"
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,14 +21,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Cache Macaron Installation
+        id: macaron-cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.macaron
+          key: ${{ runner.os }}-macaron-${{ hashFiles('**/scripts/release_scripts/run_macaron.sh') }}
+          restore-keys: |
+            ${{ runner.os }}-macaron-
+
       - name: Install Macaron
         run: |
-          # Download the Macaron installation script
-          # https://oracle.github.io/macaron/pages/installation.html
-          curl -O https://raw.githubusercontent.com/oracle/macaron/main/scripts/release_scripts/run_macaron.sh
-          chmod +x run_macaron.sh
-          # Sanity check
-          ./run_macaron.sh --help
+          # Check if cache exists, if not, install Macaron
+          if [ ! -d "$HOME/.macaron" ]; then
+            echo "Cache not found, installing Macaron..."
+            curl -O https://raw.githubusercontent.com/oracle/macaron/${{ env.MACARON_TAG }}/scripts/release_scripts/run_macaron.sh
+            chmod +x run_macaron.sh
+            echo "Macaron version: ${{env.MACARON_TAG}} installed"
+          else
+            echo "Using cached Macaron installation..."
+          fi
 
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - name: Sanity Check
+        run: ./run_macaron.sh --help
