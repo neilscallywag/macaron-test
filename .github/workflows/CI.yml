@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - "main"
+      - "NORUN"
   pull_request:
     branches:
       - "main"
@@ -26,9 +26,10 @@ jobs:
           # Ideally we would want to cache the docker image. This would be a TODO-
             curl -O https://raw.githubusercontent.com/oracle/macaron/${{ env.MACARON_TAG }}/scripts/release_scripts/run_macaron.sh
             chmod +x run_macaron.sh
-            ./run_macaron.sh 
+            # You have to do --help here. Simply putting ./run_macaron.sh for the initial run will yield error code 64 and fail the build process
+            # See: https://github.com/neilscallywag/macaron-test/actions/runs/14510714862/job/40708546519
+            ./run_macaron.sh --help
             echo "Macaron version: ${{env.MACARON_TAG}} installed"
-
 
       - name: Sanity Check
         run: ./run_macaron.sh --help
