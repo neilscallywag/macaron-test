@@ -21,26 +21,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Cache Macaron Installation
-        id: macaron-cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.macaron
-          key: ${{ runner.os }}-macaron-${{ hashFiles('**/scripts/release_scripts/run_macaron.sh') }}
-          restore-keys: |
-            ${{ runner.os }}-macaron-
-
       - name: Install Macaron
         run: |
-          # Check if cache exists, if not, install Macaron
-          if [ ! -d "$HOME/.macaron" ]; then
-            echo "Cache not found, installing Macaron..."
+          # Ideally we would want to cache the docker image. This would be a TODO-
             curl -O https://raw.githubusercontent.com/oracle/macaron/${{ env.MACARON_TAG }}/scripts/release_scripts/run_macaron.sh
             chmod +x run_macaron.sh
+            ./run_macaron.sh 
             echo "Macaron version: ${{env.MACARON_TAG}} installed"
-          else
-            echo "Using cached Macaron installation..."
-          fi
+
 
       - name: Sanity Check
         run: ./run_macaron.sh --help
