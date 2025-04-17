@@ -53,10 +53,12 @@ jobs:
       - name: Build and deploy locally to create artifacts for SLSA provenance
         id: deploy
         run: |
-          # Build and deploy locally to create artifacts for SLSA provenance
           # Create a local Maven repository
           mkdir -p $HOME/.m2/local-repository
-
+          
+          # Build the project to create artifacts
+          mvn clean package
+          
           # Extract group from pom.xml - convert dots to path separators
           GROUP_ID=$(mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout | sed 's/\./\//g')
           ARTIFACT_ID=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)
@@ -68,12 +70,9 @@ jobs:
         id: find_artifacts
         run: |
           VERSION=${{ steps.extract_version.outputs.version }}
-          GROUP_PATH=$(mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout | sed 's/\./\//g')
-          ARTIFACT_ID=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)
-          
           # Find all JAR and POM files in the target directory
           echo "Searching for artifacts"
-          ARTIFACTS=$(find target/*/${VERSION}/* -type f \( \( -iname "*.jar" -not -iname "*-javadoc.jar" -not -iname "*-sources.jar" \) -or -iname "*.pom" \))
+          ARTIFACTS=$(find target -type f \( \( -iname "*.jar" -not -iname "*-javadoc.jar" -not -iname "*-sources.jar" \) -or -iname "*.pom" \))
           
           if [ -z "$ARTIFACTS" ]; then
             echo "No artifacts found!"
