@@ -149,6 +149,7 @@
     </build>
 
     <!-- Distribution Management for deploying to GitHub Packages -->
+	 <!-- test -->
     <distributionManagement>
         <repository>
             <id>github</id>
