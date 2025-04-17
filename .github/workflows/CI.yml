@@ -52,9 +52,9 @@ jobs:
       - name: Analyse the SLSA posture
         run: |
           # Macaron first checks if the provided path is a local path. We can use this to analyse the checked-out repo in the earlier step
-          FOLDER_PATH="./python"                # We will analyse the local python folder
-          BRANCH_NAME="${GITHUB_REF##*/}"       # Get the current branch (removes refs/heads/)
-          COMMIT_DIGEST="${GITHUB_SHA}"         # Get the current commit digest (SHA)
+          FOLDER_PATH=${{ github.workspace }}                             # We will analyse the local python folder
+          BRANCH_NAME="${GITHUB_REF##*/}"                                 # Get the current branch (removes refs/heads/)
+          COMMIT_DIGEST="${GITHUB_SHA}"                                   # Get the current commit digest (SHA)
 
           echo "Analyzing repository: $FOLDER_PATH"
           echo "Branch: $BRANCH_NAME"
