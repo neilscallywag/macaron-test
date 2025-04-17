@@ -61,7 +61,7 @@ jobs:
           echo "Commit digest: $COMMIT_DIGEST"
 
           # Run the analysis command
-          ./run_macaron.sh analyze -rp "$REPO_PATH" -b "$BRANCH_NAME" -d "$COMMIT_DIGEST"
+          ./run_macaron.sh analyze -rp "$FOLDER_PATH" -b "$BRANCH_NAME" -d "$COMMIT_DIGEST"
 
       # Sanity check
       - name: List generated output files
