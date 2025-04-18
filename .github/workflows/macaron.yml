@@ -98,9 +98,10 @@ jobs:
 
       # Upload the generated artifacts
       - name: Upload Macaron analysis artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: macaron-analysis-artifacts
+          retention-days: 5
           path: |
             ${GITHUB_WORKSPACE}/output/reports/github_com/${{ github.repository_owner }}/${{ github.repository_name }}/macaron-test/macaron-test.html
             ${GITHUB_WORKSPACE}/output/reports/github_com/${{ github.repository_owner }}/${{ github.repository_name }}/macaron-test/macaron-test.json
