@@ -103,12 +103,12 @@ jobs:
           name: macaron-analysis-artifacts
           retention-days: 5
           path: |
-            ${GITHUB_WORKSPACE}/output/reports/github_com/${{ github.repository_owner }}/${{ github.repository_name }}/macaron-test/macaron-test.html
-            ${GITHUB_WORKSPACE}/output/reports/github_com/${{ github.repository_owner }}/${{ github.repository_name }}/macaron-test/macaron-test.json
-            ${GITHUB_WORKSPACE}/output/reports/github_com/${{ github.repository_owner }}/${{ github.repository_name }}/macaron-test/dependencies.json
-            ${GITHUB_WORKSPACE}/output/git_repos/github_com/${{ github.repository_owner }}/${{ github.repository_name }}/target/bom.json
-            ${GITHUB_WORKSPACE}/output/git_repos/github_com/${{ github.repository_owner }}/${{ github.repository_name }}/target/bom.xml
-            ${GITHUB_WORKSPACE}/output/git_repos/github_com/${{ github.repository_owner }}/${{ github.repository_name }}/target/maven-compile-report.json
+            ./output/reports/github_com/${{ github.repository_owner }}/${{ github.repository_name }}/macaron-test/macaron-test.html
+            ./output/reports/github_com/${{ github.repository_owner }}/${{ github.repository_name }}/macaron-test/macaron-test.json
+            ./output/reports/github_com/${{ github.repository_owner }}/${{ github.repository_name }}/macaron-test/dependencies.json
+            ./output/git_repos/github_com/${{ github.repository_owner }}/${{ github.repository_name }}/target/bom.json
+            ./output/git_repos/github_com/${{ github.repository_owner }}/${{ github.repository_name }}/target/bom.xml
+            ./output/git_repos/github_com/${{ github.repository_owner }}/${{ github.repository_name }}/target/maven-compile-report.json
 
 
 
