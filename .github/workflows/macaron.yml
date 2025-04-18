@@ -96,6 +96,20 @@ jobs:
           echo "Listing the contents of the output directory:"
           ls -R ./
 
+      # Upload the generated artifacts
+      - name: Upload Macaron analysis artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: macaron-analysis-artifacts
+          path: |
+            ${GITHUB_WORKSPACE}/output/reports/github_com/${{ github.repository_owner }}/${{ github.repository_name }}/macaron-test/macaron-test.html
+            ${GITHUB_WORKSPACE}/output/reports/github_com/${{ github.repository_owner }}/${{ github.repository_name }}/macaron-test/macaron-test.json
+            ${GITHUB_WORKSPACE}/output/reports/github_com/${{ github.repository_owner }}/${{ github.repository_name }}/macaron-test/dependencies.json
+            ${GITHUB_WORKSPACE}/output/git_repos/github_com/${{ github.repository_owner }}/${{ github.repository_name }}/target/bom.json
+            ${GITHUB_WORKSPACE}/output/git_repos/github_com/${{ github.repository_owner }}/${{ github.repository_name }}/target/bom.xml
+            ${GITHUB_WORKSPACE}/output/git_repos/github_com/${{ github.repository_owner }}/${{ github.repository_name }}/target/maven-compile-report.json
+
+
 
         
 
