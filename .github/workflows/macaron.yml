@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - "never"
+      - "main"
   pull_request:
     branches:
       - "main"
@@ -88,13 +88,13 @@ jobs:
           echo "Commit digest: $COMMIT_DIGEST"
 
           # Run the analysis command
-          ./run_macaron.sh analyze -rp "$FOLDER_PATH" -b "$BRANCH_NAME" -d "$COMMIT_DIGEST"
+          ./run_macaron.sh analyze -rp "$FOLDER_PATH" -b "$BRANCH_NAME" -d "$COMMIT_DIGEST" --deps-depth=inf
 
       # Sanity check
       - name: List generated output files
         run: |
           echo "Listing the contents of the output directory:"
-          ls -R /home/macaron/output
+          ls -R ./
 
 
         
